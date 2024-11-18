@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Напоминания</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Напоминания</h1>
+        <form id="reminder-form">
+            <input type="text" id="comment" placeholder="Комментарий..." required>
+            <label for="interval">Интервал:</label>
+            <select id="interval">
+                <option value="3600000">Каждый час</option>
+                <option value="7200000">Каждые 2 часа</option>
+            </select>
+            <button type="submit">Добавить напоминание</button>
+        </form>
+        <ul id="reminders-list"></ul>
+    </div>
+    <audio id="notification-sound" src="notification.mp3" preload="auto"></audio>
+    <script src="script.js"></script>
+</body>
+</html>
