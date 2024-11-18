@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (Notification.permission === "granted") {
             new Notification("Напоминание", {
                 body: comment,
-                icon: 'icon.png' // укажите путь к иконке, если она есть
+                icon: 'notifications_web/icon.png' // укажите путь к иконке, если она есть
             });
         }
     }
