@@ -86,6 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    //----------------------ОТЛАДКА----------------------------
     // Проверка разрешения на показ уведомлений
     async function requestNotificationPermission() {
         if (Notification.permission === "default") {
