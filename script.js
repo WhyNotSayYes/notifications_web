@@ -85,4 +85,19 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
     }
+
+    // Проверка разрешения на показ уведомлений
+    async function requestNotificationPermission() {
+        if (Notification.permission === "default") {
+            await Notification.requestPermission();
+        }
+        if (Notification.permission === "granted") {
+            console.log("Разрешение на уведомления получено.");
+        } else {
+            console.warn("Уведомления отключены пользователем.");
+        }
+    }
+    
+    requestNotificationPermission();
+    
 });
