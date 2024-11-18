@@ -1,85 +1,88 @@
-const form = document.getElementById('reminder-form');
-const remindersList = document.getElementById('reminders-list');
-const notificationSound = document.getElementById('notification-sound');
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('reminder-form');
+    const commentInput = document.getElementById('comment');
+    const intervalInput = document.getElementById('interval');
+    const remindersList = document.getElementById('reminders-list');
+    const audio = document.getElementById('notification-sound');
 
-let reminders = [];
+    let reminders = [];
 
-// Проверяем, поддерживает ли браузер уведомления
-if ('Notification' in window && Notification.permission !== 'granted') {
-    Notification.requestPermission();
-}
+    // Запрос разрешения на отправку уведомлений
+    if (Notification.permission !== "granted") {
+        Notification.requestPermission();
+    }
 
-// Функция для добавления напоминания
-form.addEventListener('submit', function(event) {
-    event.preventDefault();
+    // Добавление нового напоминания
+    form.addEventListener('submit', (event) => {
+        event.preventDefault();
 
-    const comment = document.getElementById('comment').value;
-    const interval = parseInt(document.getElementById('interval').value);
-    const reminderId = Date.now();
+        const comment = commentInput.value;
+        const interval = parseInt(intervalInput.value);
 
-    const reminder = {
-        id: reminderId,
-        comment: comment,
-        interval: interval,
-        timerId: null
-    };
+        const reminder = {
+            id: Date.now(),
+            comment,
+            interval,
+            nextTrigger: Date.now() + interval
+        };
 
-    reminders.push(reminder);
-    addReminderToList(reminder);
+        reminders.push(reminder);
+        addReminderToList(reminder);
+        scheduleReminder(reminder);
 
-    // Устанавливаем напоминание и сохраняем его идентификатор
-    reminder.timerId = setReminder(reminder);
-
-    // Очищаем форму
-    form.reset();
-});
-
-// Функция для добавления напоминания в список на странице
-function addReminderToList(reminder) {
-    const listItem = document.createElement('li');
-    listItem.dataset.id = reminder.id;
-
-    const text = document.createElement('span');
-    text.textContent = `${reminder.comment} - каждые ${reminder.interval / 3600000} ч.`;
-
-    const deleteBtn = document.createElement('button');
-    deleteBtn.textContent = 'Удалить';
-    deleteBtn.classList.add('delete-btn');
-    deleteBtn.addEventListener('click', function() {
-        deleteReminder(reminder.id);
+        commentInput.value = '';
     });
 
-    listItem.appendChild(text);
-    listItem.appendChild(deleteBtn);
-    remindersList.appendChild(listItem);
-}
+    // Добавить напоминание в список
+    function addReminderToList(reminder) {
+        const li = document.createElement('li');
+        li.dataset.id = reminder.id;
+        li.innerHTML = `
+            <span>${reminder.comment} (каждые ${reminder.interval / 1000} сек)</span>
+            <button class="delete-btn">Удалить</button>
+        `;
 
-// Функция для установки напоминания
-function setReminder(reminder) {
-    return setInterval(() => {
-        // Воспроизводим звук
-        notificationSound.play();
+        const deleteBtn = li.querySelector('.delete-btn');
+        deleteBtn.addEventListener('click', () => {
+            deleteReminder(reminder.id);
+        });
 
-        // Отправляем уведомление
-        if (Notification.permission === 'granted') {
-            new Notification('Напоминание', {
-                body: reminder.comment,
-                icon: 'notification-icon.png' // Можно добавить иконку, если нужно
+        remindersList.appendChild(li);
+    }
+
+    // Удаление напоминания
+    function deleteReminder(id) {
+        reminders = reminders.filter(r => r.id !== id);
+        const li = document.querySelector(`li[data-id="${id}"]`);
+        if (li) li.remove();
+    }
+
+    // Запланировать напоминание
+    function scheduleReminder(reminder) {
+        function triggerReminder() {
+            const currentTime = Date.now();
+            
+            if (currentTime >= reminder.nextTrigger) {
+                showNotification(reminder.comment);
+                audio.play();
+                reminder.nextTrigger = currentTime + reminder.interval;
+            }
+
+            // Проверка, если напоминание все еще существует в списке
+            if (reminders.some(r => r.id === reminder.id)) {
+                setTimeout(triggerReminder, 1000);
+            }
+        }
+        triggerReminder();
+    }
+
+    // Показать уведомление
+    function showNotification(comment) {
+        if (Notification.permission === "granted") {
+            new Notification("Напоминание", {
+                body: comment,
+                icon: 'icon.png' // укажите путь к иконке, если она есть
             });
         }
-    }, reminder.interval);
-}
-
-// Функция для удаления напоминания
-function deleteReminder(id) {
-    const reminderIndex = reminders.findIndex(reminder => reminder.id === id);
-    if (reminderIndex !== -1) {
-        clearInterval(reminders[reminderIndex].timerId);
-        reminders.splice(reminderIndex, 1);
     }
-
-    const listItem = document.querySelector(`li[data-id="${id}"]`);
-    if (listItem) {
-        listItem.remove();
-    }
-}
+});
