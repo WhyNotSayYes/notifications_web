@@ -11,11 +11,16 @@
         <h1>Напоминания</h1>
         <form id="reminder-form">
             <input type="text" id="comment" placeholder="Комментарий..." required>
-            <label for="interval">Интервал:</label>
-            <select id="interval">
-                <option value="30000">Каждые 30 секунд</option>
-                <option value="7200000">Каждые 2 часа</option>
+            <input type="time" id="time" required>
+            <input type="number" id="interval-value" placeholder="Интервал" required>
+            <select id="interval-unit">
+                <option value="minutes">минуты</option>
+                <option value="hours">часы</option>
+                <option value="days">дни</option>
+                <option value="weeks">недели</option>
             </select>
+            <input type="number" id="repeats-count" placeholder="Число повторов" min="1">
+            <label><input type="checkbox" id="permanent"> Постоянно</label>
             <button type="submit">Добавить напоминание</button>
         </form>
         <ul id="reminders-list"></ul>
